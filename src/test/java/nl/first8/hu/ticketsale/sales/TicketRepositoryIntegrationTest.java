@@ -55,7 +55,7 @@ public class TicketRepositoryIntegrationTest {
 
     @Before
     public void cleanDatabase() {
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, "sale", "ticket", "account");
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, "sale", "ticket", "account", "concert", "artist");
     }
 
     @Test
@@ -72,7 +72,7 @@ public class TicketRepositoryIntegrationTest {
 
 
         final Ticket ticket = testRepository.findTicket(concert, account);
-        assertThat(ticket.getConcert().getArtist(), is(concert.getArtist()));
+        assertThat(ticket.getConcert().getArtist().getName(), is(concert.getArtist().getName()));
         assertThat(ticket.getConcert().getLocation().getName(), is(concert.getLocation().getName()));
     }
 
@@ -94,9 +94,9 @@ public class TicketRepositoryIntegrationTest {
 
         List<TicketDto> actualTickets = readTicketsResponse(result);
         assertEquals(2, actualTickets.size());
-        assertEquals(ticketGorillaz.getConcert().getArtist(), actualTickets.get(0).getArtist());
+        assertEquals(ticketGorillaz.getConcert().getArtist().getName(), actualTickets.get(0).getArtist());
         assertEquals(ticketGorillaz.getConcert().getLocation().getName(), actualTickets.get(0).getLocation());
-        assertEquals(ticketThieveryCo.getConcert().getArtist(), actualTickets.get(1).getArtist());
+        assertEquals(ticketThieveryCo.getConcert().getArtist().getName(), actualTickets.get(1).getArtist());
         assertEquals(ticketGorillaz.getConcert().getLocation().getName(), actualTickets.get(0).getLocation());
 
 

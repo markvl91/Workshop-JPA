@@ -17,9 +17,9 @@ public class Concert implements Serializable {
     @GeneratedValue
     private Long id;
 
-    private String artist;
-
-    private String genre;
+    @ManyToOne
+    @JoinColumn(name = "artist_id", referencedColumnName = "id")
+    private Artist artist;
 
     @ManyToOne
     @JoinColumn(name = "location_id", referencedColumnName = "id")

@@ -4,7 +4,9 @@ import nl.first8.hu.ticketsale.registration.Account;
 import nl.first8.hu.ticketsale.registration.AccountInfo;
 import nl.first8.hu.ticketsale.sales.Ticket;
 import nl.first8.hu.ticketsale.sales.TicketId;
+import nl.first8.hu.ticketsale.venue.Artist;
 import nl.first8.hu.ticketsale.venue.Concert;
+import nl.first8.hu.ticketsale.venue.Genre;
 import nl.first8.hu.ticketsale.venue.Location;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,9 +41,9 @@ public class TestRepository {
     }
 
     @Transactional(Transactional.TxType.REQUIRES_NEW)
-    public Ticket createDefaultTicket(Account acc, String artist, String location) {
+    public Ticket createDefaultTicket(Account acc, String artistName, String location) {
         Account account = entityManager.find(Account.class, acc.getId());
-        Concert concert = createDefaultConcert(artist, location);
+        Concert concert = createDefaultConcert(artistName, location);
         Ticket ticket = new Ticket(concert, account);
         entityManager.persist(ticket);
         return ticket;
@@ -59,13 +61,13 @@ public class TestRepository {
         TicketId key = new TicketId(concert, account);
         return entityManager.find(Ticket.class, key);
     }
-    
+
     @Transactional(Transactional.TxType.REQUIRES_NEW)
-    public Concert createDefaultConcert(String artist, String locationName) {
+    public Concert createDefaultConcert(String artistName, String locationName) {
         Location location = createLocation(locationName);
+        Artist artist = createDefaultArtist(artistName);
         Concert concert = new Concert();
         concert.setArtist(artist);
-        concert.setGenre("Grindcore");
         concert.setLocation(location);
         entityManager.persist(concert);
         return concert;
@@ -73,11 +75,10 @@ public class TestRepository {
     }
 
     @Transactional(Transactional.TxType.REQUIRES_NEW)
-    public Concert createConcert(String artist, String genre, String locationName) {
+    public Concert createConcert(Artist artist, String locationName) {
         Location location = createLocation(locationName);
         Concert concert = new Concert();
         concert.setArtist(artist);
-        concert.setGenre(genre);
         concert.setLocation(location);
         entityManager.persist(concert);
         return concert;
@@ -85,11 +86,29 @@ public class TestRepository {
     }
 
     @Transactional(Transactional.TxType.REQUIRES_NEW)
-    private Location createLocation(String locationName) {
+    public Location createLocation(String locationName) {
         Location location = new Location();
         location.setName(locationName);
         entityManager.persist(location);
         return location;
+    }
+
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    public Artist createDefaultArtist(String name) {
+        Artist artist = new Artist();
+        artist.setName(name);
+        artist.setGenre(Genre.GRINDCORE);
+        entityManager.persist(artist);
+        return artist;
+    }
+
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    public Artist createArtist(String name, Genre genre) {
+        Artist artist = new Artist();
+        artist.setName(name);
+        artist.setGenre(genre);
+        entityManager.persist(artist);
+        return artist;
     }
 
 

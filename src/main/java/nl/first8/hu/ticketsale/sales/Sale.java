@@ -2,7 +2,6 @@ package nl.first8.hu.ticketsale.sales;
 
 import java.io.Serializable;
 import java.util.Date;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -12,6 +11,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.Min;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -26,9 +26,8 @@ public class Sale implements Serializable {
 
     @OneToOne
     @JoinColumns({
-        @JoinColumn(name = "ticket_account_id", referencedColumnName = "account_id")
-        ,
-        @JoinColumn(name = "ticket_concert_id", referencedColumnName = "concert_id")})
+            @JoinColumn(name = "ticket_account_id", referencedColumnName = "account_id"),
+            @JoinColumn(name = "ticket_concert_id", referencedColumnName = "concert_id")})
     private Ticket ticket;
 
     @Temporal(TemporalType.TIMESTAMP)

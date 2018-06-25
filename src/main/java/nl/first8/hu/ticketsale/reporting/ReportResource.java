@@ -1,5 +1,6 @@
 package nl.first8.hu.ticketsale.reporting;
 
+import nl.first8.hu.ticketsale.venue.Genre;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,11 +26,12 @@ public class ReportResource {
 
 
     @GetMapping(path = "/location")
-    public ResponseEntity<List<LocationReport>> getById(@RequestParam("genre") final String genre) {
+    public ResponseEntity<List<LocationReport>> getById(@RequestParam("genre") final Genre genre) {
         try {
             List<LocationReport> reports = repository.findGenreLocations(genre);
             return ResponseEntity.ok(reports);
         } catch (RuntimeException e) {
+
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
 

@@ -1,0 +1,13 @@
+CREATE TABLE artist (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  name VARCHAR(255) NOT NULL,
+  genre VARCHAR(255) NOT NULL,
+
+  CONSTRAINT pk_artist PRIMARY KEY(id)
+);
+
+ALTER TABLE concert
+ADD COLUMN artist_id BIGINT NOT NULL,
+DROP COLUMN artist,
+DROP COLUMN genre,
+ADD FOREIGN KEY (artist_id) REFERENCES artist(id);
