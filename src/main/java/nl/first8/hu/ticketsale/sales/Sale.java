@@ -30,6 +30,9 @@ public class Sale implements Serializable {
             @JoinColumn(name = "ticket_concert_id", referencedColumnName = "concert_id")})
     private Ticket ticket;
 
+    @OneToOne(mappedBy = "sale")
+    private AuditTrail auditTrail;
+
     @Temporal(TemporalType.TIMESTAMP)
     private Date sellDate;
 

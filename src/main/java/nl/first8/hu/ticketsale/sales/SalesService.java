@@ -3,6 +3,7 @@ package nl.first8.hu.ticketsale.sales;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Date;
+
 import nl.first8.hu.ticketsale.registration.Account;
 import nl.first8.hu.ticketsale.registration.RegistrationRepository;
 import nl.first8.hu.ticketsale.venue.VenueRepository;
@@ -10,8 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Valid;
+import javax.validation.Validator;
 import java.util.List;
 import java.util.Optional;
+
 import nl.first8.hu.ticketsale.venue.Concert;
 
 @Service
@@ -22,13 +27,16 @@ public class SalesService {
     private final VenueRepository venueRepository;
 
     @Autowired
+    private Validator validator;
+
+    @Autowired
     public SalesService(RegistrationRepository registrationRepository, SalesRepository salesRepository, VenueRepository venueRepository) {
         this.registrationRepository = registrationRepository;
         this.salesRepository = salesRepository;
         this.venueRepository = venueRepository;
     }
 
-    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    @Transactional(value = Transactional.TxType.REQUIRES_NEW, dontRollbackOn = {RuntimeException.class})
     public void insertSale(Long accountId, Long ticketId, Integer price) {
         insertSale(accountId, ticketId, price, Date.from(Instant.now()));
     }
@@ -38,14 +46,34 @@ public class SalesService {
         Concert concert = venueRepository.findConcertById(concertId).orElseThrow(() -> new RuntimeException("Unknown concert Id " + concertId));
 
         Ticket ticket = new Ticket(concert, account);
-        salesRepository.insert(ticket);
 
         Sale sale = new Sale();
-        sale.setTicket(ticket);
-        sale.setPrice(price);
-        sale.setSellDate(timestamp);
+        Boolean validSale = false;
+        try {
+            sale.setTicket(ticket);
+            sale.setPrice(price);
+            sale.setSellDate(timestamp);
 
-        salesRepository.insert(sale);
+            validSale = validator.validate(sale).size() == 0;
+
+            if (validSale) {
+                salesRepository.insert(ticket);
+                salesRepository.insert(sale);
+            } else {
+                throw new RuntimeException("Invalid sale");
+            }
+        } finally {
+            insertAuditTrail(account, validSale ? sale : null);
+        }
+    }
+
+    @Transactional(value = Transactional.TxType.REQUIRES_NEW)
+    protected void insertAuditTrail(Account account, Sale sale) {
+        AuditTrail auditTrail = new AuditTrail();
+        auditTrail.setAccount(account);
+        auditTrail.setSale(sale);
+
+        salesRepository.insert(auditTrail);
     }
 
     public Optional<Sale> getSale(Long accountId, Long concertId) {

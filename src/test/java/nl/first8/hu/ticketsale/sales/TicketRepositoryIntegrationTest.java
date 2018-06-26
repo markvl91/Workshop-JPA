@@ -55,7 +55,7 @@ public class TicketRepositoryIntegrationTest {
 
     @Before
     public void cleanDatabase() {
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, "sale", "ticket", "account", "concert", "artist");
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, "audit_trail", "sale", "ticket", "account", "concert", "artist");
     }
 
     @Test
